@@ -25,6 +25,9 @@ def find_computer_occupations(in_df):
 def filter_incomes_codes(in_df):
     out_df = in_df[in_df.total_income!=0]
     out_df = out_df[out_df.total_income < 999999]
+    out_df = out_df[out_df.wage_income != 0]
+    out_df = out_df[out_df.wage_income < 999999]
+
     return out_df
 
 def get_region_dummies(in_df):
@@ -36,30 +39,36 @@ def get_region_dummies(in_df):
                                         )
     out_df = in_df
     out_df['simple_regions'] = simple_regions
-    dummies = pd.get_dummies(simple_regions, prefix='in')
+    dummies = pd.get_dummies(simple_regions, prefix='region')
     return dummies
 
 
 def get_state_dummies(in_df):
     state_cats = in_df.state.astype('category')
-    dummies = pd.get_dummies(state_cats, prefix='in')
+    dummies = pd.get_dummies(state_cats, prefix='state')
     return dummies
 
 def get_education_dummies(in_df):
+    in_df.education = in_df.education.astype('category')
     educ_cats = in_df.education.astype('category')
+
 #     educ_cats = educ_cats.map({
 #         '123':
 #         '124':
 #         '125'
 #     })
-    dummies = pd.get_dummies(educ_cats, prefix='level')
+    dummies = pd.get_dummies(educ_cats, prefix='educ_level')
     return dummies
-def get_intech_dummy(in_df):
-    out_df = in_df.occupation.isin(range(1000,1108))
-    return out_df
 
+def get_intech_dummy(in_df):
+    dummies = in_df.occupation.isin(range(1000,1108)).astype(int).rename('in_tech')
+    return dummies
+def get_intech_ly_dummy(in_df):
+    dummies = in_df.occupation_ly.isin(range(1000,1108)).astype(int).rename('in_tech_ly')
+    return dummies
 #def get_moved_ly()
 # def create_state_dummies(in_df):
 #     in_df['state' in['06','CA','TX']
 def append_all_dummies(in_df):
-    return pd.concat([in_df,get_region_dummies(in_df),get_state_dummies(in_df), get_intech_dummy(in_df),get_education_dummies(in_df),],axis=1)
+    return pd.concat([in_df,get_region_dummies(in_df),get_state_dummies(in_df), get_intech_dummy(in_df),
+                      get_intech_ly_dummy(in_df),get_education_dummies(in_df),],axis=1)
